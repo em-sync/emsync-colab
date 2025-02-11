@@ -387,11 +387,11 @@ def adjust_valence_arousal(df, max_a=1, min_a=-1, max_v=1, min_v=-1):
 
     # Prepare adjusted DataFrame
     adjusted_df = df[["word", "V_mean_new", "V_std_new", "A_mean_new", "A_std_new"]]
-    adjusted_df.rename(columns={
+    adjusted_df = adjusted_df.rename(columns={
         "V_mean_new": "V_mean", 
         "V_std_new": "V_std", 
         "A_mean_new": "A_mean", 
         "A_std_new": "A_std"
-    }, inplace=True)
+    })
     
     return adjusted_df

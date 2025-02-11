@@ -116,7 +116,7 @@ if not os.path.exists(args.soundfont_path):
 
 ### RUN
 
-input_path = 'input_output/sample2.mp4'
+input_path = 'input_output/sample.mp4'
 
 output = video_classifier.run(input_path)
 predictions = output['predictions']
@@ -217,6 +217,7 @@ video_name = input_path.stem
 video_extension = input_path.suffix
 
 output_path = output_dir / f'{video_name}_output{video_extension}'
+small_output_path = output_dir / f'{video_name}_output_small{video_extension}'
 
 file_stem = f'{video_name}_output'
 
@@ -228,7 +229,6 @@ for i, mid in enumerate(output_midis):
 
     # Synthesize MIDI to WAV
     output_wav_path = output_dir / f'{file_stem}.wav'
-
 
     fs = FluidSynth(args.soundfont_path)
     fs.midi_to_audio(output_midi_path, output_wav_path)
@@ -245,8 +245,7 @@ for i, mid in enumerate(output_midis):
             video.video, 
             audio, 
             str(output_path), 
-            vcodec='libx264', 
-            preset='ultrafast', 
+            vcodec='copy', 
             acodec='libopus', 
             strict='experimental'
         )
@@ -258,9 +257,20 @@ for i, mid in enumerate(output_midis):
         os.remove(output_midi_path)
         os.remove(output_wav_path)
 
+    (
+        ffmpeg.input(str(output_path)).output(
+            str(small_output_path), 
+            vf="scale=-1:360",
+            vcodec="libx264", 
+            preset="ultrafast",
+        )
+        .overwrite_output()
+        .run(quiet=True)
+    )
+
     if duration < 360:   # Show video if it won't use all the RAM
         print()
-        print('Input video:')
-        display(Video(str(output_path), embed=True, width=640, height=480))
+        print('Output video:')
+        display(Video(str(small_output_path), embed=True, width=480, height=360))
 
     # files.download(str(output_path))
