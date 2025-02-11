@@ -205,6 +205,11 @@ def convert_to_points(coords):
     x1, y1, x2, y2 = coords
     return [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]
 
+def create_dropdown(options, description='Option:'):
+    dropdown = widgets.Dropdown(options=options, description=description, description_width=700)
+    display(dropdown)
+    return dropdown
+
 
 def get_video_duration(video_path):
     # Probe the video to get its duration
