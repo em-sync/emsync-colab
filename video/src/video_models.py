@@ -9,7 +9,6 @@ import clip
 import json
 import transformers
 from pathlib import Path
-from symspellpy.symspellpy import SymSpell
 from .face_detector.detect_face import FaceDetector
 import utils as u
 from .beats.BEATs import BEATs, BEATsConfig
