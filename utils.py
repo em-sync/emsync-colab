@@ -356,3 +356,35 @@ def detach_tensor(x):
         x = x.cpu()
         x = x.numpy()
     return x
+
+def download_yt(url, target_path='./youtube', size=None):
+    # Downloads Youtube video
+    ydl_opts = {
+        'outtmpl': f'{target_path}.%(ext)s',
+        'noplaylist': True,
+        'overwrites': True,
+        'format': 'bestaudio/best',  # Default format selection
+        'format_sort': 'height',     # Sort formats by height
+        
+    }
+    if size:
+        ydl_opts['format'] = f'best[height<={size}]',  # Select the best format with height <= size
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            
+    except Exception as e:
+        print("Falling back to the best available format.")
+        # Fallback: use the best available format
+        fallback_opts = {
+            'outtmpl': f'{target_path}/youtube.%(ext)s',
+            'noplaylist': True,
+            'format': 'best',  # Best available format without restrictions
+            'overwrites': True,
+        }
+        with yt_dlp.YoutubeDL(fallback_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+
+    ext = info_dict.get('ext', 'mp4')  # Default to mp4 if extension not found
+    filename = f'{target_path}/youtube.{ext}'
+    return filename
