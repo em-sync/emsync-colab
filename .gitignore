@@ -1,12 +1,10 @@
 __pycache__
 .vscode
-input_output/*
-!input_output/condo.mp4
+
 conceptual_weights.pt
 yolov5m-face.pt
 BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt
 custom.sf2
 midi_model.pt
 video_model.pt
-!.gitkeep
 all_requirements.txt
