@@ -357,7 +357,7 @@ def detach_tensor(x):
         x = x.numpy()
     return x
 
-def download_yt(url, target_path='./youtube', size=None):
+def download_yt(url, target_path, size=None):
     # Downloads Youtube video
     ydl_opts = {
         'outtmpl': f'{target_path}.%(ext)s',
