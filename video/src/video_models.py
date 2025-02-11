@@ -523,10 +523,7 @@ class BEATSRunner(torch.nn.Module):
         # load the pre-trained checkpoints
         print('before path', flush=True)
         
-        if not model_fp.exists():
-            print('inside if', flush=True)
-            id = '1uq31m69XGnHaKV_QVreh5rL3S018ecV6'
-            u.download_gdrive(id, model_fp)
+
         print('before load', flush=True)
         print('after load', flush=True)
         self.label_dict = checkpoint["label_dict"]
