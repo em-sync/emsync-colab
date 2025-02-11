@@ -308,44 +308,6 @@ def download_gdrive(id, target_path):
     gdown.download(url, str(target_path), quiet=False)
 
 
-def download_youtube_video(youtube_id, target_path="./youtube", size=None):
-    """
-    Downloads the best available format of a YouTube video and saves it to the specified path with the inferred extension.
-
-    Args:
-        youtube_id (str): The YouTube video ID.
-        target_path (str): The target path without an extension.
-
-    Returns:
-        str: The full file path including the inferred extension.
-    """
-    ydl_opts = {
-        'outtmpl': f'{target_path}.%(ext)s',
-        'format': 'best',
-        'noprogress': True,
-        'overwrites': True
-    }
-    if size:
-        ydl_opts['format'] = f'best[height<={size}]'
-
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f'https://www.youtube.com/watch?v={youtube_id}', download=True)
-            ext = ydl.prepare_filename(info).split('.')[-1]  # Infer the extension
-    except:
-        print("Requested size is unavailable. Trying the best available format.")
-        del ydl_opts['format']
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(f'https://www.youtube.com/watch?v={youtube_id}', download=True)
-                ext = ydl.prepare_filename(info).split('.')[-1]  # Infer the extension
-        except:
-            return None
-
-    full_path = f"{target_path}.{ext}"
-    return full_path
-
-
 def normalize(tensor, min_val, max_val):
     return (tensor - min_val) / (max_val - min_val)
 
@@ -365,6 +327,7 @@ def download_yt(url, target_path, size=None):
         'overwrites': True,
         'format': 'bestaudio/best',  # Default format selection
         'format_sort': 'height',     # Sort formats by height
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
         
     }
     if size:
