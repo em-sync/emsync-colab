@@ -7,3 +7,4 @@ BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt
 custom.sf2
 midi_model.pt
 video_model.pt
+!.gitkeep
