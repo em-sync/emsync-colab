@@ -8,3 +8,4 @@ custom.sf2
 midi_model.pt
 video_model.pt
 !.gitkeep
+all_requirements.txt
