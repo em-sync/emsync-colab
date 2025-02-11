@@ -521,17 +521,12 @@ class BEATSRunner(torch.nn.Module):
         self.target_sample_rate = 16000
 
         # load the pre-trained checkpoints
-        print('before path', flush=True)
         model_fp = script_dir / 'beats/pretrained_models_labels/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt'
         
         if not model_fp.exists():
-            print('inside if', flush=True)
             id = '1uq31m69XGnHaKV_QVreh5rL3S018ecV6'
             u.download_gdrive(id, model_fp)
-            print('loaded?')
-        print('before load', flush=True)
-        # checkpoint = torch.load(model_fp, weights_only=True)
-        print('after load', flush=True)
+        checkpoint = torch.load(model_fp, weights_only=True)
         self.label_dict = checkpoint["label_dict"]
         cfg = BEATsConfig(checkpoint['cfg'])
         self.BEATs_model = BEATs(cfg)
