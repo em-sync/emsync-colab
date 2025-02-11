@@ -36,7 +36,7 @@ def run_video(model_dir, video_path=None, visualize=False):
     if not weights_fp.exists():
         id = '11aaWCbhcccW_lTaUqKqux2h-nNAfIYCi'
         u.download_gdrive(id, weights_fp)
-    weights = torch.load(weights_fp, map_location=lambda storage, weights_only=True, loc: storage)
+    weights = torch.load(weights_fp, map_location='cpu', weights_only=True)
     classifier.load_state_dict(weights)
     del weights
     classifier = classifier.to(device)
