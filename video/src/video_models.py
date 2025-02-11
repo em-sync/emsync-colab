@@ -522,7 +522,7 @@ class BEATSRunner(torch.nn.Module):
 
         # load the pre-trained checkpoints
         print('before path', flush=True)
-        model_fp = script_dir / 'beats/pretrained_models_labels/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt'
+        # model_fp = script_dir / 'beats/pretrained_models_labels/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt'
         
         if not model_fp.exists():
             print('inside if', flush=True)
