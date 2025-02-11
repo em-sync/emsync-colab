@@ -116,9 +116,6 @@ def generate(model, helper, device, out_dir, conditioning,
                 input_ = input_[:, -max_input_len:]
                 times_to_chord_input = times_to_chord_input[:, -max_input_len:]
                 
-            if gen_song_tensor.shape[-1] == max_input_len:
-                print(utils.memory())
-
             if threshold_n_instruments > 1:      # Concatenate n_instruments token
                 input_ = torch.cat((n_instruments_token, input_), 1)
                 # Pad times_to_chord accordingly ("same" padding)
