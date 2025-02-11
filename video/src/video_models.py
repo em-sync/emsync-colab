@@ -529,7 +529,7 @@ class BEATSRunner(torch.nn.Module):
             id = '1uq31m69XGnHaKV_QVreh5rL3S018ecV6'
             u.download_gdrive(id, model_fp)
         print('before load', flush=True)
-        checkpoint = torch.load(model_fp, weights_only=True)
+        # checkpoint = torch.load(model_fp, weights_only=True)
         print('after load', flush=True)
         self.label_dict = checkpoint["label_dict"]
         cfg = BEATsConfig(checkpoint['cfg'])
