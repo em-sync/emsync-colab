@@ -130,7 +130,7 @@ class FaceDetector(torch.nn.Module):
         script_dir = os.path.dirname(__file__)
         script_dir = Path(script_dir)
 
-        model_path = script_dir / '../../weights_and_labels/yolov5m-face.pt'
+        model_path = Path('../large_files/yolov5m-face.pt')
         if not os.path.exists(model_path):
             id = '1MwDFCzY91LcHw1JoA1CT9dE2l4tJzyLb'
             u.download_gdrive(id, model_path)

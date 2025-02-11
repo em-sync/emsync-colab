@@ -357,3 +357,41 @@ def download_yt(url, target_path, size=None):
     filename = f'{target_path}/youtube.{ext}'
     
     return filename  # Return the saved file path
+
+def adjust_valence_arousal(df, max_a=1, min_a=-1, max_v=1, min_v=-1):
+    """
+    Adjusts valence and arousal means and standard deviations to fit within [-max_norm, max_norm].
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing columns 'V_mean', 'V_std', 'A_mean', 'A_std'.
+        max_norm (float): The maximum absolute value for the normalized range.
+        
+    Returns:
+        pd.DataFrame: Adjusted DataFrame with normalized valence and arousal values.
+    """
+
+    df["V_mean_new"] = df["V_mean"]
+    df["V_std_new"] = df["V_std"]
+
+    # Adjust Valence
+    V_min, V_max = df["V_mean"].min(), df["V_mean"].max()
+    V_scaling = (max_v - min_v) / (V_max - V_min)
+    df["V_mean_new"] = (df["V_mean"] - V_min) * V_scaling + min_v
+    df["V_std_new"] = df["V_std"] * V_scaling
+
+    # Adjust Arousal
+    A_min, A_max = df["A_mean"].min(), df["A_mean"].max()
+    A_scaling = (max_a - min_a) / (A_max - A_min)
+    df["A_mean_new"] = (df["A_mean"] - A_min) * A_scaling + min_a
+    df["A_std_new"] = df["A_std"] * A_scaling
+
+    # Prepare adjusted DataFrame
+    adjusted_df = df[["word", "V_mean_new", "V_std_new", "A_mean_new", "A_std_new"]]
+    adjusted_df.rename(columns={
+        "V_mean_new": "V_mean", 
+        "V_std_new": "V_std", 
+        "A_mean_new": "A_mean", 
+        "A_std_new": "A_std"
+    }, inplace=True)
+    
+    return adjusted_df

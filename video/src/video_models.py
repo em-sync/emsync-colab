@@ -481,7 +481,7 @@ class CaptionRunner(torch.nn.Module):
         super(CaptionRunner, self).__init__()
         self.caption_prefix_length = 10
         self.caption_model = ClipCaptionModel(self.caption_prefix_length)
-        model_path = Path('video/weights_and_labels/conceptual_weights.pt')
+        model_path = Path('../large_files/conceptual_weights.pt')
         if not model_path.exists():
             id = '1G9gxqW6TpKxycKjQJLb2uqRJ9Qu6K4AZ'
             u.download_gdrive(id, model_path)
@@ -521,7 +521,7 @@ class BEATSRunner(torch.nn.Module):
         self.target_sample_rate = 16000
 
         # load the pre-trained checkpoints
-        model_fp = script_dir / 'beats/pretrained_models_labels/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt'
+        model_fp = Path('../large_files/BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt')
         
         if not model_fp.exists():
             id = '1uq31m69XGnHaKV_QVreh5rL3S018ecV6'

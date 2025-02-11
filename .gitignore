@@ -1,10 +1,4 @@
 __pycache__
 .vscode
-
-conceptual_weights.pt
-yolov5m-face.pt
-BEATs_iter3_plus_AS2M_finetuned_on_AS2M_cpt2.pt
-custom.sf2
-midi_model.pt
-video_model.pt
-all_requirements.txt
+input_output/*
+!input_output/sample.mp4
