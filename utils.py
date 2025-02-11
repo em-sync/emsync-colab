@@ -319,35 +319,41 @@ def detach_tensor(x):
         x = x.numpy()
     return x
 
+import yt_dlp
+import os
+
 def download_yt(url, target_path, size=None):
-    # Downloads Youtube video
+    # Ensure the target directory exists
+    os.makedirs(target_path, exist_ok=True)
+
+    # Set yt-dlp options
     ydl_opts = {
-        'outtmpl': f'{target_path}.%(ext)s',
-        'noplaylist': True,
-        'overwrites': True,
+        'outtmpl': f'{target_path}/youtube.%(ext)s',  # Save file in target path
+        'noplaylist': True,  # Only download a single video
+        'overwrites': True,  # Overwrite if the file exists
         'format': 'bestaudio/best',  # Default format selection
-        'format_sort': 'height',     # Sort formats by height
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
-        
+        'quiet': False,  # Show download progress
+        'extract-audio': False,  # Do not extract audio (can be changed if needed)
     }
+    
+    # Apply size restriction if provided
     if size:
-        ydl_opts['format'] = f'best[height<={size}]',  # Select the best format with height <= size
+        ydl_opts['format'] = f'best[height<={size}]'  # Pick best format below given height
+
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
-            
     except Exception as e:
-        print("Falling back to the best available format.")
-        # Fallback: use the best available format
-        fallback_opts = {
-            'outtmpl': f'{target_path}/youtube.%(ext)s',
-            'noplaylist': True,
-            'format': 'best',  # Best available format without restrictions
-            'overwrites': True,
-        }
+        print("Error downloading video:", e)
+        print("Falling back to best available format.")
+        fallback_opts = ydl_opts.copy()
+        fallback_opts['format'] = 'best'  # Try again with no height restriction
         with yt_dlp.YoutubeDL(fallback_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
 
-    ext = info_dict.get('ext', 'mp4')  # Default to mp4 if extension not found
+    # Get the file extension (default to mp4)
+    ext = info_dict.get('ext', 'mp4')
     filename = f'{target_path}/youtube.{ext}'
-    return filename
+    
+    return filename  # Return the saved file path
