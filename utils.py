@@ -9,6 +9,7 @@ import ffmpeg
 import gdown
 import subprocess
 import re
+import ipywidgets as widgets
 
 # Groups are custom made
 GROUP_TO_PROGRAM = {
