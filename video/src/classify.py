@@ -6,16 +6,11 @@ import matplotlib
 import utils as u
 from . import video_models
 
-def run_video(model_dir, video_path=None, youtube_url=None, visualize=False):
-    
-    assert bool(video_path) ^ bool(youtube_url), 'Please provide either video path or Youtube URL.'
+def run_video(model_dir, video_path=None, visualize=False):
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     size = 360    # Use 360p
-
-    if youtube_url:
-        video_path = u.download_yt(youtube_url, target_dir='input_output', size=size)
 
     scenecuts = u.ffmpeg_scene_detect(video_path)
     duration = u.get_video_duration(video_path)
