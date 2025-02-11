@@ -6,15 +6,10 @@ import torch
 import torchaudio
 from itertools import permutations
 import clip
-
 import json
 import transformers
 from pathlib import Path
-
-from paddleocr import PaddleOCR
-import pkg_resources
 from symspellpy.symspellpy import SymSpell
-
 from .face_detector.detect_face import FaceDetector
 import utils as u
 from .beats.BEATs import BEATs, BEATsConfig
@@ -491,7 +486,7 @@ class CaptionRunner(torch.nn.Module):
         if not model_path.exists():
             id = '1G9gxqW6TpKxycKjQJLb2uqRJ9Qu6K4AZ'
             u.download_gdrive(id, model_path)
-            
+
         self.caption_model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')), strict=False) 
         self.caption_model.eval()
         self.caption_tokenizer = transformers.GPT2Tokenizer.from_pretrained("gpt2")
@@ -744,140 +739,6 @@ class TextLanguageClassifier(torch.nn.Module):
                 output = output[0]
             return output
 
-
-class OCRRunner:
-    # Wrapper for optical Character Recognition (OCR) model to process full videos.
-    # Source: https://github.com/PaddlePaddle/PaddleOCR
-    def __init__(self, threshold=0.75):
-        
-        self.threshold = threshold
-        self.model = PaddleOCR(
-            show_log=False, 
-            use_angle_cls=False, 
-            lang='en', 
-            use_gpu=torch.cuda.is_available(),
-            )
-
-    def get_device(self):
-        return DEVICE
-
-    def __call__(self, img_path, **kwargs):
-        with torch.no_grad():
-            output = self.model.ocr(img_path, cls=True)[0]
-            if output == None:
-                text = ''
-            else:
-                text = " ".join([line[1][0] for line in output if line[1][1] > self.threshold])
-                text = text.lower()
-                output = [box for box in output if box[1][1] > self.threshold]
-            
-            return text, output
-
-    def process_video(self, input_frames=None, video_path=None, fps=None, use_scenecuts=False, n_frames=None):
-        if input_frames is None and video_path == None:
-            raise ValueError('You should provide either input frames or video path.')
-        elif input_frames is None:
-            if use_scenecuts:
-                input_frames, _ = u.video_to_midscenes(video_path)  # Get scenes  
-            else:
-                input_frames, input_fps = u.extract_frames(str(video_path), output_fps=fps)
-            
-            if n_frames != None:
-                indices = u.equidistant_indices(input_frames.shape[0], n_frames)
-                input_frames = input_frames[indices, ...]
-
-        video_texts = []
-        video_outputs = []
-
-        for frame in input_frames: 
-            frame_text, frame_output = self.__call__(frame)
-            video_texts.append(frame_text)
-            video_outputs.append(frame_output)
-
-        return video_texts, video_outputs
-    
-
-class OCRPipeline(torch.nn.Module):
-    ''' Pipeline:
-    Predict language
-    
-    If not English:
-        Translate to English
-
-    If English:
-        Segment words (add space where necessary)
-        Correct spelling
-
-    Analyze sentiment
-    '''
-    def __init__(self, verbose=False):
-        super(OCRPipeline, self).__init__()
-        self.verbose = verbose
-        self.ocr_model = OCRRunner()
-        self.language_classifier = TextLanguageClassifier()
-        self.segmentor = TextSegmentor()
-        self.spellchecker = SpellChecker()
-        self.translator = ToEnglishTranslator()
-        self.sentiment_classifier = SentimentClassifier()
-
-    def to_device(self, device):
-        if device == 'cuda' and not torch.cuda.is_available():
-            print('CUDA not available.')
-        elif device not in ('cpu', 'cuda'):
-            print('Device can only be cpu or cuda.')
-        else:
-            self.language_classifier.model.model.to(device)
-
-
-    def process_video(self, input_tensor=None, video_path=None, fps=None, **kwargs):
-        ocr_texts, ocr_outputs = self.ocr_model.process_video(input_tensor, video_path, fps)
-        output = {}
-        output['ocr_raw'] = ocr_texts
-        output['boxes'] = ocr_outputs
-        unique_texts = list(dict.fromkeys(ocr_texts))    # Take unique
-        if '' in unique_texts:
-            unique_texts.remove('')
-        if unique_texts == []:
-            output['features'] = []
-            output['ocr_processed'] = []
-        else:
-            languages = self.language_classifier(unique_texts)           
-            processed_texts = []
-            for i in range(len(unique_texts)):
-                if languages[i] in ('english', 'unknown'):
-                    segmented = self.segmentor(unique_texts[i])
-                    corrected = self.spellchecker(segmented)
-                    processed_texts.append(corrected)
-                else:
-                    translated = self.translator(unique_texts[i], languages[i])
-                    processed_texts.append(translated)
-
-            processed_texts = list(dict.fromkeys(processed_texts))
-            output['ocr_processed'] = processed_texts
-
-            output_text = '. '.join(processed_texts)
-            model_output = self.sentiment_classifier(output_text)
-            output.update(model_output)
-                 
-        return output
-
-
-class TextSegmentor:
-    # Segments text into word.
-    # Useful when OCR model misses the spaces.
-    # Source: https://pypi.org/project/symspellpy/
-    def __init__(self):
-        self.model = SymSpell(max_dictionary_edit_distance=0, prefix_length=7)
-        dictionary_path = pkg_resources.resource_filename(
-                "symspellpy", "frequency_dictionary_en_82_765.txt"
-            )
-        self.model.load_dictionary(dictionary_path, term_index=0, count_index=1)
-    def __call__(self, text):
-        if text in ('-', ''):
-            return text
-        else:
-            output = self.model.word_segmentation(text).corrected_string
-            return output
 
 
 '''Emotion classifier:
