@@ -486,7 +486,7 @@ class CaptionRunner(torch.nn.Module):
             id = '1G9gxqW6TpKxycKjQJLb2uqRJ9Qu6K4AZ'
             u.download_gdrive(id, model_path)
 
-        self.caption_model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')), strict=False) 
+        self.caption_model.load_state_dict(torch.load(model_path, weights_only=True, map_location=torch.device('cpu')), strict=False) 
         self.caption_model.eval()
         self.caption_tokenizer = transformers.GPT2Tokenizer.from_pretrained("gpt2")
 
@@ -525,7 +525,7 @@ class BEATSRunner(torch.nn.Module):
         if not model_fp.exists():
             id = '1uq31m69XGnHaKV_QVreh5rL3S018ecV6'
             u.download_gdrive(id, model_fp)
-        checkpoint = torch.load(model_fp)
+        checkpoint = torch.load(model_fp, weights_only=True)
         self.label_dict = checkpoint["label_dict"]
         cfg = BEATsConfig(checkpoint['cfg'])
         self.BEATs_model = BEATs(cfg)
